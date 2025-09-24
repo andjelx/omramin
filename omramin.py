@@ -526,10 +526,12 @@ def sync_bp_measurements(
                 timestamp=datetimeStr, systolic=bpm.systolic, diastolic=bpm.diastolic, pulse=bpm.pulse, notes=notes
             )
 
+def patch_date(input_date: str):
+    return input_date.split("T")[0]
 
 def garmin_get_bp_measurements(gc: GC.Garmin, startdate: str, enddate: str):
     # search dates are in local time
-    gcData = gc.get_blood_pressure(startdate=startdate, enddate=enddate)
+    gcData = gc.get_blood_pressure(startdate=patch_date(startdate), enddate=patch_date(enddate))
 
     # reduce to list of measurements
     _gcMeasurements = [metric for x in gcData["measurementSummaries"] for metric in x["measurements"]]
@@ -746,9 +748,9 @@ def add_device(
         macaddr = inquirer.list_input("Select device", choices=sorted(bleDevices))
 
     if macaddr:
-        if not U.is_valid_macaddr(macaddr):
-            L.error(f"Invalid MAC address: {macaddr}")
-            return
+        # if not U.is_valid_macaddr(macaddr):
+        #     L.error(f"Invalid MAC address: {macaddr}")
+        #     return
 
         if macaddr in [d["macaddr"] for d in devices]:
             L.info(f"Device '{macaddr}' already exists.")
